@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2017  Andres Rodriguez
- *                     Valve Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,39 +20,28 @@
  * SOFTWARE.
  */
 
-#include <gputool/config.h>
-#include <stdio.h>
-#include <map>
+#pragma once
+
+#include <stdint.h>
 #include <vector>
-#include "AmdGpuDevice.h"
-#include "util.h"
-#include "AmdRegDb.h"
 
 namespace gputool
 {
+// ---------------------------------------------------------------------------
 
-std::map<std::string, RegId> searchDb;
+typedef int RegId;
 
-int doStuff()
-{
-    std::unique_ptr<AmdGpuDevice> GpuDevice = util::make_unique<AmdGpuDevice>();
+typedef struct RegField {
+    const char *name;
+    const uint32_t mask;
+    const uint32_t shift;
+} RegisterField;
 
-    for (uint32_t i = 0; i < ARRAY_SIZE(gfx_v8_regs); ++i) {
-        uint32_t val = GpuDevice->read(gfx_v8_regs[i]);
-        printf("%s: 0x%x\n", gfx_v8_regs[i].name, val);
-    }
+typedef struct RegSpec {
+    const char *name;
+    const uint32_t offset;
+    std::vector<RegField> fields;
+} Register;
 
-    return 0;
-}
-
-}  // namespace gputool
-
-int main()
-{
-    try {
-        gputool::doStuff();
-    } catch (...) {
-        std::terminate();
-    }
-    return 0;
-}
+// ---------------------------------------------------------------------------
+};  // namespace gputool

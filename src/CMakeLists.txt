@@ -24,7 +24,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 set(SOURCES
-		gputool.cpp)
+        AmdGpuDevice.cpp
+        gputool.cpp)
 
 add_executable(gputool ${SOURCES})
 

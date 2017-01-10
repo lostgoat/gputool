@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2017  Andres Rodriguez
- *                     Valve Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,39 +20,29 @@
  * SOFTWARE.
  */
 
-#include <gputool/config.h>
-#include <stdio.h>
-#include <map>
-#include <vector>
-#include "AmdGpuDevice.h"
-#include "util.h"
-#include "AmdRegDb.h"
+#pragma once
+
+#include <stdint.h>
 
 namespace gputool
 {
+// ---------------------------------------------------------------------------
 
-std::map<std::string, RegId> searchDb;
+struct RegSpec;
 
-int doStuff()
+class AmdGpuDevice
 {
-    std::unique_ptr<AmdGpuDevice> GpuDevice = util::make_unique<AmdGpuDevice>();
+  public:
+    AmdGpuDevice();
+    ~AmdGpuDevice();
 
-    for (uint32_t i = 0; i < ARRAY_SIZE(gfx_v8_regs); ++i) {
-        uint32_t val = GpuDevice->read(gfx_v8_regs[i]);
-        printf("%s: 0x%x\n", gfx_v8_regs[i].name, val);
-    }
+    uint32_t read(const RegSpec &reg);
 
-    return 0;
-}
+  private:
+    int mRegFd;
 
-}  // namespace gputool
-
-int main()
-{
-    try {
-        gputool::doStuff();
-    } catch (...) {
-        std::terminate();
-    }
-    return 0;
-}
+    static const char *sRegPath;
+    static const int sRegSizeByte = 4;
+};
+// ---------------------------------------------------------------------------
+};  // namespace gputool

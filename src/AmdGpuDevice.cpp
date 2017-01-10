@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2017  Andres Rodriguez
- *                     Valve Corporation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,39 +20,52 @@
  * SOFTWARE.
  */
 
-#include <gputool/config.h>
-#include <stdio.h>
-#include <map>
-#include <vector>
 #include "AmdGpuDevice.h"
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <cstddef>
 #include "util.h"
-#include "AmdRegDb.h"
+#include "RegSpec.h"
 
 namespace gputool
 {
+// ---------------------------------------------------------------------------
 
-std::map<std::string, RegId> searchDb;
+const char *AmdGpuDevice::sRegPath = "/sys/kernel/debug/dri/0/amdgpu_regs";
 
-int doStuff()
+AmdGpuDevice::AmdGpuDevice() : mRegFd(-1)
 {
-    std::unique_ptr<AmdGpuDevice> GpuDevice = util::make_unique<AmdGpuDevice>();
+    mRegFd = open(sRegPath, O_RDWR);
+    failOn(mRegFd < 0, "Error opening %s for AmdGpuDevice, are your root?\n", sRegPath);
+    SCOPE_FAIL { close(mRegFd); };
 
-    for (uint32_t i = 0; i < ARRAY_SIZE(gfx_v8_regs); ++i) {
-        uint32_t val = GpuDevice->read(gfx_v8_regs[i]);
-        printf("%s: 0x%x\n", gfx_v8_regs[i].name, val);
-    }
-
-    return 0;
+    printf("Initialized AmdGpuDevice\n");
 }
 
-}  // namespace gputool
-
-int main()
+AmdGpuDevice::~AmdGpuDevice()
 {
-    try {
-        gputool::doStuff();
-    } catch (...) {
-        std::terminate();
-    }
-    return 0;
+    close(mRegFd);
 }
+
+uint32_t AmdGpuDevice::read(const RegSpec &reg)
+{
+    int r;
+    uint32_t val;
+
+    /* Careful: Register offset is in sequence number, not bytes*/
+    r = ::lseek(mRegFd, reg.offset * sRegSizeByte, SEEK_SET);
+    failOn(r == -1, "Failed to seek register %s\n", reg.name);
+
+    r = ::read(mRegFd, (void *)&val, sizeof(val));
+    failOn(r != sizeof(val), "Failed to read register %s\n", reg.name);
+
+    return val;
+}
+
+// ---------------------------------------------------------------------------
+};
