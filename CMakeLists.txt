@@ -45,10 +45,15 @@ add_subdirectory(src)
 set (SRC_EXTENSIONS cpp h)
 set (SRC_DIRS src/ include/)
 
+# make cppcheck will run some basic static analysis
 set (CPPCHECK_EXTENSIONS ${SRC_EXTENSIONS})
 set (CPPCHECK_DIR ${SRC_DIRS})
 include(cmake/cppcheck.cmake)
 
+# make format fixes the formatting in-place
 set (CLANG_FORMAT_EXTENSIONS ${SRC_EXTENSIONS})
 set (CLANG_FORMAT_DIR ${SRC_DIRS})
 include(cmake/clang-format.cmake)
+
+# make genregs generates registers headers
+include(cmake/genregs.cmake)

@@ -73,9 +73,9 @@ std::vector<const RegSpec*> AmdGpuDevice::getRegSpec(std::string name)
 {
     std::vector<const RegSpec*> regs;
 
-    for (size_t i = 0; i < ARRAY_SIZE(gfx_v8_regs); ++i) {
-        if (name == gfx_v8_regs[i].name)
-            regs.push_back(&gfx_v8_regs[i]);
+    for (size_t i = 0; i < ARRAY_SIZE(gca_gfx_8_0_regs); ++i) {
+        if (name == gca_gfx_8_0_regs[i].name)
+            regs.push_back(&gca_gfx_8_0_regs[i]);
     }
 
     return regs;
