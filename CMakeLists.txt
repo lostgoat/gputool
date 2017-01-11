@@ -40,6 +40,7 @@ include_directories(
 	"amdregdb/include"
 	)
 
+add_subdirectory(amdregdb)
 add_subdirectory(src)
 
 set (SRC_EXTENSIONS cpp h)

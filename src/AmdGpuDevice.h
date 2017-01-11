@@ -31,6 +31,28 @@ namespace gputool
 class AmdGpuDevice
 {
   public:
+      typedef enum AsicType {
+          CHIP_TAHITI = 0,
+          CHIP_PITCAIRN,
+          CHIP_VERDE,
+          CHIP_OLAND,
+          CHIP_HAINAN,
+          CHIP_BONAIRE,
+          CHIP_KAVERI,
+          CHIP_KABINI,
+          CHIP_HAWAII,
+          CHIP_MULLINS,
+          CHIP_TOPAZ,
+          CHIP_TONGA,
+          CHIP_FIJI,
+          CHIP_CARRIZO,
+          CHIP_STONEY,
+          CHIP_POLARIS10,
+          CHIP_POLARIS11,
+          CHIP_UNSUPPORTED,
+          CHIP_LAST,
+      } AsicType;
+
     AmdGpuDevice();
     ~AmdGpuDevice();
 
@@ -39,7 +61,13 @@ class AmdGpuDevice
     std::vector<const amdregdb::RegSpec *> getRegSpec(std::string);
 
   private:
+    AsicType getAsicType();
+    void populateSupportedBlocks();
+    bool supportsBlock(const amdregdb::RegBlock *block);
+
     int mRegFd;
+    std::vector<const amdregdb::RegBlock *> mRegBlocks;
+    std::vector<std::string> mSupportedBlockNames;
 
     static const char *sRegPath;
     static const int sRegSizeByte = 4;

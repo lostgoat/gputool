@@ -26,6 +26,7 @@ set(SOURCES
         gputool.cpp)
 
 add_executable(gputool ${SOURCES})
+target_link_libraries (gputool amdregdb)
 
 set_property(TARGET gputool PROPERTY CXX_STANDARD 11)
 set_property(TARGET gputool PROPERTY CXX_STANDARD_REQUIRED ON)
