@@ -2,7 +2,8 @@
 
 #include "RegSpec.h"
 
-namespace gputool {
+namespace gputool
+{
 
 const RegSpec gfx_v8_regs[] = {
     {"SMC_IND_INDEX_11", 0x1ac, {}},

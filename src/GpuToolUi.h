@@ -23,31 +23,29 @@
 #pragma once
 
 #include <stdint.h>
-#include <string>
-#include <vector>
+#include <memory>
 
 namespace gputool
 {
 // ---------------------------------------------------------------------------
 
 struct RegSpec;
+class UserInput;
+class AmdGpuDevice;
 
-class AmdGpuDevice
+class GpuToolUi
 {
   public:
-    AmdGpuDevice();
-    ~AmdGpuDevice();
-
-    uint32_t read(const RegSpec &reg);
-    void write(const RegSpec &reg, uint32_t val);
-    std::vector<const RegSpec*> getRegSpec(std::string);
+    GpuToolUi();
+    ~GpuToolUi();
+    int run();
 
   private:
-    int mRegFd;
+    std::unique_ptr<UserInput> getNextInput();
+    int dispatch(const UserInput &input);
+    int doRegOp(const UserInput &input);
 
-    static const char *sRegPath;
-    static const int sRegSizeByte = 4;
-
+    std::unique_ptr<AmdGpuDevice> mGpuDevice;
 };
 // ---------------------------------------------------------------------------
 };  // namespace gputool

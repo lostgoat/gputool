@@ -23,37 +23,22 @@
 
 #include <gputool/config.h>
 #include <stdio.h>
-#include <map>
-#include <vector>
-#include "AmdGpuDevice.h"
+#include "GpuToolUi.h"
 #include "util.h"
-#include "AmdRegDb.h"
-
-namespace gputool
-{
-
-std::map<std::string, RegId> searchDb;
-
-int doStuff()
-{
-    std::unique_ptr<AmdGpuDevice> GpuDevice = util::make_unique<AmdGpuDevice>();
-
-    for (uint32_t i = 0; i < ARRAY_SIZE(gfx_v8_regs); ++i) {
-        uint32_t val = GpuDevice->read(gfx_v8_regs[i]);
-        printf("%s: 0x%x\n", gfx_v8_regs[i].name, val);
-    }
-
-    return 0;
-}
-
-}  // namespace gputool
 
 int main()
 {
+    int r = 0;
+
+    printf("Starting gputool v%d.%d.%d\n", GPUTOOL_VERSION_MAJOR, GPUTOOL_VERSION_MINOR,
+           GPUTOOL_VERSION_PATCH);
+
     try {
-        gputool::doStuff();
+        auto ui = util::make_unique<gputool::GpuToolUi>();
+        r = ui->run();
     } catch (...) {
         std::terminate();
     }
-    return 0;
+
+    return r;
 }

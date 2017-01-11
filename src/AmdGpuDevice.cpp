@@ -27,10 +27,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <vector>
 
 #include <cstddef>
 #include "util.h"
 #include "RegSpec.h"
+#include "AmdRegDb.h"
 
 namespace gputool
 {
@@ -65,6 +67,23 @@ uint32_t AmdGpuDevice::read(const RegSpec &reg)
     failOn(r != sizeof(val), "Failed to read register %s\n", reg.name);
 
     return val;
+}
+
+std::vector<const RegSpec*> AmdGpuDevice::getRegSpec(std::string name)
+{
+    std::vector<const RegSpec*> regs;
+
+    for (size_t i = 0; i < ARRAY_SIZE(gfx_v8_regs); ++i) {
+        if (name == gfx_v8_regs[i].name)
+            regs.push_back(&gfx_v8_regs[i]);
+    }
+
+    return regs;
+}
+
+void AmdGpuDevice::write(const RegSpec &reg, uint32_t val)
+{
+    printf("Write stub: %s->0x%x\n", reg.name, val);
 }
 
 // ---------------------------------------------------------------------------
