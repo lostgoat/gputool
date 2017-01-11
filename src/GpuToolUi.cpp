@@ -126,15 +126,23 @@ int GpuToolUi::dispatch(const UserInput &input)
 
 int GpuToolUi::doRegOp(const UserInput &input)
 {
-    uint32_t val;
+    uint32_t regVal;
 
     std::vector<const RegSpec*> regSpec = mGpuDevice->getRegSpec(input.mRegName);
     for (auto const &reg : regSpec) {
         if (input.mCommand == UserInput::UC_REG_WRITE)
             mGpuDevice->write(*reg, input.mRegValue);
 
-        val = mGpuDevice->read(*reg);
-        printf("%s: 0x%x\n", reg->name, val);
+        regVal = mGpuDevice->read(*reg);
+
+        /* This could probably use a real formatting attempt */
+        printf("%s: 0x%x\n", reg->name, regVal);
+        if (!reg->fields.empty()) {
+            for (auto const &field : reg->fields) {
+                uint32_t fieldVal = (regVal & field.mask) >> field.shift;
+                printf("    %s: 0x%x\n", field.name, fieldVal);
+            }
+        }
     }
 
     return 0;
