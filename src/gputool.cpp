@@ -23,8 +23,8 @@
 
 #include <gputool/config.h>
 #include <stdio.h>
+#include <util/util.h>
 #include "GpuToolUi.h"
-#include "util.h"
 
 int main()
 {

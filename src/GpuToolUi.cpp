@@ -28,9 +28,9 @@
 #include <string>
 
 #include <amdregdb/RegSpec.h>
+#include <util/util.h>
 #include <cstddef>
 #include "AmdGpuDevice.h"
-#include "util.h"
 
 namespace gputool
 {

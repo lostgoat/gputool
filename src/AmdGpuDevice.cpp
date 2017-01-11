@@ -31,8 +31,8 @@
 
 #include <amdregdb/AmdRegDb.h>
 #include <amdregdb/RegSpec.h>
+#include <util/util.h>
 #include <cstddef>
-#include "util.h"
 
 namespace gputool
 {
