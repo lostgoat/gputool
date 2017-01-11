@@ -54,7 +54,7 @@ AmdGpuDevice::~AmdGpuDevice()
     close(mRegFd);
 }
 
-uint32_t AmdGpuDevice::read(const RegSpec &reg)
+uint32_t AmdGpuDevice::read(const amdregdb::RegSpec &reg)
 {
     int r;
     uint32_t val;
@@ -69,19 +69,19 @@ uint32_t AmdGpuDevice::read(const RegSpec &reg)
     return val;
 }
 
-std::vector<const RegSpec*> AmdGpuDevice::getRegSpec(std::string name)
+std::vector<const amdregdb::RegSpec*> AmdGpuDevice::getRegSpec(std::string name)
 {
-    std::vector<const RegSpec*> regs;
+    std::vector<const amdregdb::RegSpec*> regs;
 
-    for (size_t i = 0; i < ARRAY_SIZE(gca_gfx_8_0_regs); ++i) {
-        if (name == gca_gfx_8_0_regs[i].name)
-            regs.push_back(&gca_gfx_8_0_regs[i]);
+    for (size_t i = 0; i < ARRAY_SIZE(amdregdb::gca_gfx_8_0_regs); ++i) {
+        if (name == amdregdb::gca_gfx_8_0_regs[i].name)
+            regs.push_back(&amdregdb::gca_gfx_8_0_regs[i]);
     }
 
     return regs;
 }
 
-void AmdGpuDevice::write(const RegSpec &reg, uint32_t val)
+void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val)
 {
     printf("Write stub: %s->0x%x\n", reg.name, val);
 }

@@ -25,12 +25,11 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include "RegSpec.h"
 
 namespace gputool
 {
 // ---------------------------------------------------------------------------
-
-struct RegSpec;
 
 class AmdGpuDevice
 {
@@ -38,9 +37,9 @@ class AmdGpuDevice
     AmdGpuDevice();
     ~AmdGpuDevice();
 
-    uint32_t read(const RegSpec &reg);
-    void write(const RegSpec &reg, uint32_t val);
-    std::vector<const RegSpec*> getRegSpec(std::string);
+    uint32_t read(const amdregdb::RegSpec &reg);
+    void write(const amdregdb::RegSpec &reg, uint32_t val);
+    std::vector<const amdregdb::RegSpec*> getRegSpec(std::string);
 
   private:
     int mRegFd;

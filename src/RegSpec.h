@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <vector>
 
-namespace gputool
+namespace amdregdb
 {
 // ---------------------------------------------------------------------------
 
@@ -35,13 +35,19 @@ typedef struct RegField {
     const char *name;
     const uint32_t mask;
     const uint32_t shift;
-} RegisterField;
+} RegField;
 
 typedef struct RegSpec {
     const char *name;
     const uint32_t offset;
     std::vector<RegField> fields;
-} Register;
+} RegSpec;
+
+typedef struct RegBlock {
+    const char *name;
+	const RegSpec *regs;
+	const int size;
+} RegBlock;
 
 // ---------------------------------------------------------------------------
-};  // namespace gputool
+};  // namespace amdregdb
