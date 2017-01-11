@@ -54,26 +54,6 @@ Commands
 Currently the only supported command is 'read $regname'
 
 ```
-gputool> read PA_SC_RASTER_CONFIG
-PA_SC_RASTER_CONFIG: 0x16000012
-    RB_XSEL: 0x0
-    SC_YSEL: 0x0
-    SC_MAP: 0x0
-    SC_XSEL: 0x0
-    SE_YSEL: 0x1
-    SE_XSEL: 0x1
-    PKR_YSEL: 0x0
-    RB_YSEL: 0x0
-    PKR_XSEL: 0x0
-    RB_XSEL2: 0x1
-    PKR_XSEL2: 0x0
-    SE_MAP: 0x2
-    RB_MAP_PKR0: 0x2
-    RB_MAP_PKR1: 0x0
-    PKR_MAP: 0x0
-```
-
-```
 gputool> read CB_HW_CONTROL
 CB_HW_CONTROL: 0x7208
     FORCE_NEEDS_DST: 0x0
