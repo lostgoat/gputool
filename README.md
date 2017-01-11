@@ -95,3 +95,11 @@ CB_HW_CONTROL: 0x7208
     DISABLE_BLEND_OPT_BYPASS: 0x0
     CM_CACHE_EVICT_POINT: 0x8
 ```
+
+Extra Build Targets
+-------------------
+
+The following extra build targets are supported:
+	* genregs: Updated amdregdb from an amdgpu linux tree (needs improvement)
+    * format: formats the code in place
+    * cppcheck: run some basic static analysis on the code
