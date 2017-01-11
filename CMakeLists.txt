@@ -38,7 +38,10 @@ configure_file (
   )
 
 include_directories("${AUTOGEN_HEADERS_DIR}")
-include_directories(include)
+include_directories(
+	"include/"
+	"amdregdb/include"
+	)
 
 add_subdirectory(src)
 

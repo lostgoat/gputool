@@ -27,9 +27,9 @@
 #include <sstream>
 #include <string>
 
+#include <amdregdb/RegSpec.h>
 #include <cstddef>
 #include "AmdGpuDevice.h"
-#include "RegSpec.h"
 #include "util.h"
 
 namespace gputool
@@ -128,7 +128,8 @@ int GpuToolUi::doRegOp(const UserInput &input)
 {
     uint32_t regVal;
 
-    std::vector<const amdregdb::RegSpec*> regSpec = mGpuDevice->getRegSpec(input.mRegName);
+    std::vector<const amdregdb::RegSpec *> regSpec =
+        mGpuDevice->getRegSpec(input.mRegName);
     for (auto const &reg : regSpec) {
         if (input.mCommand == UserInput::UC_REG_WRITE)
             mGpuDevice->write(*reg, input.mRegValue);

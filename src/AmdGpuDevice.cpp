@@ -29,10 +29,10 @@
 #include <unistd.h>
 #include <vector>
 
+#include <amdregdb/AmdRegDb.h>
+#include <amdregdb/RegSpec.h>
 #include <cstddef>
 #include "util.h"
-#include "RegSpec.h"
-#include "AmdRegDb.h"
 
 namespace gputool
 {
@@ -69,9 +69,9 @@ uint32_t AmdGpuDevice::read(const amdregdb::RegSpec &reg)
     return val;
 }
 
-std::vector<const amdregdb::RegSpec*> AmdGpuDevice::getRegSpec(std::string name)
+std::vector<const amdregdb::RegSpec *> AmdGpuDevice::getRegSpec(std::string name)
 {
-    std::vector<const amdregdb::RegSpec*> regs;
+    std::vector<const amdregdb::RegSpec *> regs;
 
     for (size_t i = 0; i < ARRAY_SIZE(amdregdb::gca_gfx_8_0_regs); ++i) {
         if (name == amdregdb::gca_gfx_8_0_regs[i].name)
