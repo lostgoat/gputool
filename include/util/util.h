@@ -25,6 +25,10 @@
 #include <exception>
 #include <memory>
 
+#ifndef __cpp_lib_uncaught_exceptions
+#error toolchain does not support __cpp_lib_uncaught_exceptions
+#endif
+
 /**
  * This file contains some helpers that may be useful between different
  * projects
@@ -39,7 +43,7 @@ class TerminationException : public std::exception
 /**
  * Print a message and exit with the specified error code
  */
-static void die(const char* format, ...)
+static inline void die(const char* format, ...)
 {
     va_list vargs;
     va_start(vargs, format);
