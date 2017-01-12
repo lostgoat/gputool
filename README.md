@@ -20,6 +20,10 @@ gputool currently supports:
 Build
 -----
 
+NOTE: gputool requires std::uncaught_exceptions(). If your default toolchain
+does not support it, then you can choose an alternate ony by setting CXX=...
+in your environment.
+
 ```
 mkdir build/
 cd build/
