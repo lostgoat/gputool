@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.0.0)
 
 project(gputool)
 
@@ -40,8 +40,13 @@ include_directories(
 	"amdregdb/include"
 	)
 
+include(cmake/comp_base.cmake)
+
 add_subdirectory(amdregdb)
 add_subdirectory(src)
+
+comp_target_features(amdregdb PUBLIC cpp17_lib/uncaught_exceptions)
+comp_target_features(gputool PUBLIC cpp17_lib/uncaught_exceptions)
 
 set (SRC_EXTENSIONS cpp h)
 set (SRC_DIRS src/ include/)
