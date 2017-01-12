@@ -9,13 +9,13 @@ Supported Hardware
 The underlying amdregdb contains the register spec format for all HW that amdgpu supports.
 
 gputool currently supports:
-	* POLARIS 10 (simple device id detection required for other hardware)
+ * POLARIS 10 (simple device id detection required for other hardware)
 
 Supported Operations
 --------------------
 
 gputool currently supports:
-	* Reading and decoding registers
+ * Reading and decoding registers
 
 Build
 -----
@@ -80,6 +80,6 @@ Extra Build Targets
 -------------------
 
 The following extra build targets are supported:
-	* genregs: Updated amdregdb from an amdgpu linux tree (needs improvement)
-    * format: formats the code in place
-    * cppcheck: run some basic static analysis on the code
+ * genregs: Updated amdregdb from an amdgpu linux tree (needs improvement)
+ * format: formats the code in place
+ * cppcheck: run some basic static analysis on the code
