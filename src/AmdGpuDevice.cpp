@@ -35,8 +35,6 @@ namespace gputool
 {
 // ---------------------------------------------------------------------------
 
-const char *AmdGpuDevice::sRegPath = "/sys/kernel/debug/dri/0/amdgpu_regs";
-
 AmdGpuDevice::AmdGpuDevice() : mRegFd(-1)
 {
     mRegFd = open(sRegPath, O_RDWR);
@@ -45,6 +43,7 @@ AmdGpuDevice::AmdGpuDevice() : mRegFd(-1)
 
     amdregdb::load_all_blocks();
 
+    populateGcaInfo();
     populateSupportedBlocks();
 
     for (auto const &block : amdregdb::gRegDb) {
@@ -70,50 +69,52 @@ AmdGpuDevice::AsicType AmdGpuDevice::getAsicType()
 void AmdGpuDevice::populateSupportedBlocks()
 {
     switch (getAsicType()) {
-    case CHIP_TOPAZ:
-        mSupportedBlockNames.push_back(std::string("gmc_gmc_7_0"));
-        mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
-        break;
-    case CHIP_FIJI:
-        mSupportedBlockNames.push_back(std::string("gmc_gmc_8_5"));
-        mSupportedBlockNames.push_back(std::string("dce_dce_10_1"));
-        mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
-        mSupportedBlockNames.push_back(std::string("uvd_uvd_6_0"));
-        mSupportedBlockNames.push_back(std::string("vce_vce_3_0"));
-        break;
-    case CHIP_TONGA:
-        mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
-        mSupportedBlockNames.push_back(std::string("dce_dce_10_0"));
-        mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
-        mSupportedBlockNames.push_back(std::string("uvd_uvd_5_0"));
-        mSupportedBlockNames.push_back(std::string("vce_vce_3_0"));
-        break;
-    case CHIP_POLARIS11:
-    case CHIP_POLARIS10:
-        mSupportedBlockNames.push_back(std::string("gmc_gmc_8_1"));
-        mSupportedBlockNames.push_back(std::string("dce_dce_11_2"));
-        mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
-        mSupportedBlockNames.push_back(std::string("uvd_uvd_6_3"));
-        mSupportedBlockNames.push_back(std::string("vce_vce_3_4"));
-        break;
-    case CHIP_CARRIZO:
-        mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
-        mSupportedBlockNames.push_back(std::string("dce_dce_11_0"));
-        mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
-        mSupportedBlockNames.push_back(std::string("uvd_uvd_6_0"));
-        mSupportedBlockNames.push_back(std::string("vce_vce_3_1"));
-        break;
-    case CHIP_STONEY:
-        mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
-        mSupportedBlockNames.push_back(std::string("dce_dce_11_0"));
-        mSupportedBlockNames.push_back(std::string("gca_gfx_8_1"));
-        mSupportedBlockNames.push_back(std::string("uvd_uvd_6_2"));
-        mSupportedBlockNames.push_back(std::string("vce_vce_3_4"));
-        break;
-    default:
-        util::die("Unrecognized device.\n"
-                  "    You can help us register your device ID by editing %s\n"
-                  "    Pull requests are welcome", __FILE__);
+        case CHIP_TOPAZ:
+            mSupportedBlockNames.push_back(std::string("gmc_gmc_7_0"));
+            mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
+            break;
+        case CHIP_FIJI:
+            mSupportedBlockNames.push_back(std::string("gmc_gmc_8_5"));
+            mSupportedBlockNames.push_back(std::string("dce_dce_10_1"));
+            mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
+            mSupportedBlockNames.push_back(std::string("uvd_uvd_6_0"));
+            mSupportedBlockNames.push_back(std::string("vce_vce_3_0"));
+            break;
+        case CHIP_TONGA:
+            mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
+            mSupportedBlockNames.push_back(std::string("dce_dce_10_0"));
+            mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
+            mSupportedBlockNames.push_back(std::string("uvd_uvd_5_0"));
+            mSupportedBlockNames.push_back(std::string("vce_vce_3_0"));
+            break;
+        case CHIP_POLARIS11:
+        case CHIP_POLARIS10:
+            mSupportedBlockNames.push_back(std::string("gmc_gmc_8_1"));
+            mSupportedBlockNames.push_back(std::string("dce_dce_11_2"));
+            mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
+            mSupportedBlockNames.push_back(std::string("uvd_uvd_6_3"));
+            mSupportedBlockNames.push_back(std::string("vce_vce_3_4"));
+            break;
+        case CHIP_CARRIZO:
+            mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
+            mSupportedBlockNames.push_back(std::string("dce_dce_11_0"));
+            mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
+            mSupportedBlockNames.push_back(std::string("uvd_uvd_6_0"));
+            mSupportedBlockNames.push_back(std::string("vce_vce_3_1"));
+            break;
+        case CHIP_STONEY:
+            mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
+            mSupportedBlockNames.push_back(std::string("dce_dce_11_0"));
+            mSupportedBlockNames.push_back(std::string("gca_gfx_8_1"));
+            mSupportedBlockNames.push_back(std::string("uvd_uvd_6_2"));
+            mSupportedBlockNames.push_back(std::string("vce_vce_3_4"));
+            break;
+        default:
+            util::die(
+                "Unrecognized device.\n"
+                "    You can help us register your device ID by editing %s\n"
+                "    Pull requests are welcome",
+                __FILE__);
     }
 }
 
@@ -170,6 +171,22 @@ void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val)
 
     r = ::write(mRegFd, (void *)&val, sizeof(val));
     failOn(r != sizeof(val), "Failed to write register %s\n", reg.name);
+}
+
+void AmdGpuDevice::populateGcaInfo()
+{
+    int fd, r;
+
+    fd = open(sGcaInfoPath, O_RDWR);
+    failOn(fd < 0, "Error opening %s for AmdGpuDevice, are your root?\n", sGcaInfoPath);
+    SCOPE_EXIT { close(fd); };
+
+    r = ::read(fd, (void *)&mGcaInfo, sizeof(mGcaInfo));
+    failOn(r != sizeof(mGcaInfo), "Failed to read gca_info %s\n", sGcaInfoPath);
+
+    failOn(mGcaInfo.version < sRequiredGcaInfoVer,
+           "Current gca_info version unsupported, have(%d) need(%d)\n", mGcaInfo.version,
+           sRequiredGcaInfoVer);
 }
 
 // ---------------------------------------------------------------------------

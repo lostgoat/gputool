@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include "AmdDebugFs.h"
+
 namespace gputool
 {
 // ---------------------------------------------------------------------------
@@ -31,27 +33,27 @@ namespace gputool
 class AmdGpuDevice
 {
   public:
-      typedef enum AsicType {
-          CHIP_TAHITI = 0,
-          CHIP_PITCAIRN,
-          CHIP_VERDE,
-          CHIP_OLAND,
-          CHIP_HAINAN,
-          CHIP_BONAIRE,
-          CHIP_KAVERI,
-          CHIP_KABINI,
-          CHIP_HAWAII,
-          CHIP_MULLINS,
-          CHIP_TOPAZ,
-          CHIP_TONGA,
-          CHIP_FIJI,
-          CHIP_CARRIZO,
-          CHIP_STONEY,
-          CHIP_POLARIS10,
-          CHIP_POLARIS11,
-          CHIP_UNSUPPORTED,
-          CHIP_LAST,
-      } AsicType;
+    typedef enum AsicType {
+        CHIP_TAHITI = 0,
+        CHIP_PITCAIRN,
+        CHIP_VERDE,
+        CHIP_OLAND,
+        CHIP_HAINAN,
+        CHIP_BONAIRE,
+        CHIP_KAVERI,
+        CHIP_KABINI,
+        CHIP_HAWAII,
+        CHIP_MULLINS,
+        CHIP_TOPAZ,
+        CHIP_TONGA,
+        CHIP_FIJI,
+        CHIP_CARRIZO,
+        CHIP_STONEY,
+        CHIP_POLARIS10,
+        CHIP_POLARIS11,
+        CHIP_UNSUPPORTED,
+        CHIP_LAST,
+    } AsicType;
 
     AmdGpuDevice();
     ~AmdGpuDevice();
@@ -60,17 +62,24 @@ class AmdGpuDevice
     void write(const amdregdb::RegSpec &reg, uint32_t val);
     std::vector<const amdregdb::RegSpec *> getRegSpec(std::string);
 
+    amddebugfs::gca_info mGcaInfo;
+
   private:
     AsicType getAsicType();
     void populateSupportedBlocks();
+    void populateGcaInfo();
     bool supportsBlock(const amdregdb::RegBlock *block);
 
     int mRegFd;
     std::vector<const amdregdb::RegBlock *> mRegBlocks;
     std::vector<std::string> mSupportedBlockNames;
 
-    static const char *sRegPath;
     static const int sRegSizeByte = 4;
+    static const int sRequiredGcaInfoVer = 2;
+
+    static constexpr char const *sRegPath = "/sys/kernel/debug/dri/0/amdgpu_regs";
+    static constexpr char const *sGcaInfoPath =
+        "/sys/kernel/debug/dri/0/amdgpu_gca_config";
 };
 // ---------------------------------------------------------------------------
 };  // namespace gputool

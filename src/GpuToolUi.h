@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <memory>
+#include "AmdDebugFs.h"
 
 namespace gputool
 {
@@ -41,6 +42,8 @@ class GpuToolUi
     std::unique_ptr<UserInput> getNextInput();
     int dispatch(const UserInput &input);
     int doRegOp(const UserInput &input);
+    int doPrintGcaInfo(const UserInput &input);
+    int doPrintWaveInfo(const UserInput &input);
 
     std::unique_ptr<AmdGpuDevice> mGpuDevice;
 };
