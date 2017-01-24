@@ -21,6 +21,7 @@
 
 #include <amdregdb/RegSpec.h>
 #include <stdint.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -29,6 +30,24 @@
 namespace gputool
 {
 // ---------------------------------------------------------------------------
+
+class WaveInfo
+{
+  public:
+    amddebugfs::wave_info mWaveInfo;
+    int se;
+    int sh;
+    int cu;
+    int wave;
+    int simd;
+
+    WaveInfo(int se, int sh, int cu, int wave, int simd)
+        : se(se), sh(sh), cu(cu), wave(wave), simd(simd)
+    {
+    }
+
+    ~WaveInfo(){};
+};
 
 class AmdGpuDevice
 {
@@ -60,7 +79,9 @@ class AmdGpuDevice
 
     uint32_t read(const amdregdb::RegSpec &reg);
     void write(const amdregdb::RegSpec &reg, uint32_t val);
-    std::vector<const amdregdb::RegSpec *> getRegSpec(std::string);
+    std::vector<const amdregdb::RegSpec *> getRegSpecs(std::string pattern);
+    const amdregdb::RegSpec *getRegSpec(std::string name);
+    std::vector<std::unique_ptr<WaveInfo>> getWaveInfo();
 
     amddebugfs::gca_info mGcaInfo;
 
@@ -69,15 +90,18 @@ class AmdGpuDevice
     void populateSupportedBlocks();
     void populateGcaInfo();
     bool supportsBlock(const amdregdb::RegBlock *block);
+    void fillWaveInfo(int fd, WaveInfo *wave);
 
     int mRegFd;
     std::vector<const amdregdb::RegBlock *> mRegBlocks;
     std::vector<std::string> mSupportedBlockNames;
 
     static const int sRegSizeByte = 4;
-    static const int sRequiredGcaInfoVer = 2;
+    static const uint32_t sRequiredGcaInfoVer = 2;
+    static const uint32_t sRequiredWaveInfoVer = 0;
 
     static constexpr char const *sRegPath = "/sys/kernel/debug/dri/0/amdgpu_regs";
+    static constexpr char const *sWaveInfoPath = "/sys/kernel/debug/dri/0/amdgpu_wave";
     static constexpr char const *sGcaInfoPath =
         "/sys/kernel/debug/dri/0/amdgpu_gca_config";
 };

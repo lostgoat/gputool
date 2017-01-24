@@ -133,26 +133,30 @@ int GpuToolUi::dispatch(const UserInput &input)
     return 0;
 }
 
+void GpuToolUi::printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val)
+{
+    failOn(!spec, "Missing a register definition\n");
+
+    /* This could probably use a real formatting attempt */
+    printf("    %s: 0x%x\n", spec->name, val);
+    for (auto const &field : spec->fields) {
+        uint32_t fieldVal = (val & field.mask) >> field.shift;
+        printf("      %s: 0x%x\n", field.name, fieldVal);
+    }
+}
+
 int GpuToolUi::doRegOp(const UserInput &input)
 {
     uint32_t regVal;
 
     std::vector<const amdregdb::RegSpec *> regSpec =
-        mGpuDevice->getRegSpec(input.mRegName);
+        mGpuDevice->getRegSpecs(input.mRegName);
     for (auto const &reg : regSpec) {
         if (input.mCommand == UserInput::UC_REG_WRITE)
             mGpuDevice->write(*reg, input.mRegValue);
 
         regVal = mGpuDevice->read(*reg);
-
-        /* This could probably use a real formatting attempt */
-        printf("%s: 0x%x\n", reg->name, regVal);
-        if (!reg->fields.empty()) {
-            for (auto const &field : reg->fields) {
-                uint32_t fieldVal = (regVal & field.mask) >> field.shift;
-                printf("    %s: 0x%x\n", field.name, fieldVal);
-            }
-        }
+        printFormattedReg(reg, regVal);
     }
 
     return 0;
@@ -197,9 +201,33 @@ int GpuToolUi::doPrintGcaInfo(const UserInput &input)
 
 int GpuToolUi::doPrintWaveInfo(const UserInput &input)
 {
-#define DUMP_FIELD(name) printf("%s: 0x%x\n", #name, mGpuDevice->mGcaInfo.name)
-    std::cout << "not implemented\n";
-#undef DUMP_FIELD
+    std::vector<std::unique_ptr<WaveInfo>> waves = mGpuDevice->getWaveInfo();
+
+    int i = 0;
+    for (auto const &waveInfo : waves) {
+        amddebugfs::wave_info *data = &waveInfo->mWaveInfo;
+
+        printf("Wave: %d\n", i++);
+
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_STATUS"), data->status);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_PC_LO"), data->pc_lo);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_PC_HI"), data->pc_hi);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_EXEC_LO"), data->exec_lo);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_EXEC_HI"), data->exec_hi);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_HW_ID"), data->hw_id);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_INST_DW0"), data->inst_dw0);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_INST_DW1"), data->inst_dw1);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_GPR_ALLOC"), data->gpr_alloc);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_LDS_ALLOC"), data->lds_alloc);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_TRAPSTS"), data->trapsts);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_IB_STS"), data->ib_sts);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_TBA_LO"), data->tba_lo);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_TBA_HI"), data->tba_hi);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_TMA_LO"), data->tma_lo);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_TMA_HI"), data->tma_hi);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_IB_DBG0"), data->ib_dbg0);
+        printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_M0"), data->m0);
+    }
 
     return 0;
 }

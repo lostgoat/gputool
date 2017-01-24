@@ -20,6 +20,7 @@
 #include "AmdGpuDevice.h"
 
 #include <fcntl.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -144,7 +145,7 @@ uint32_t AmdGpuDevice::read(const amdregdb::RegSpec &reg)
     return val;
 }
 
-std::vector<const amdregdb::RegSpec *> AmdGpuDevice::getRegSpec(std::string name)
+std::vector<const amdregdb::RegSpec *> AmdGpuDevice::getRegSpecs(std::string pattern)
 {
     std::vector<const amdregdb::RegSpec *> regs;
 
@@ -153,12 +154,26 @@ std::vector<const amdregdb::RegSpec *> AmdGpuDevice::getRegSpec(std::string name
     /* So far it seems okay on my system though */
     for (auto const &block : mRegBlocks) {
         for (int i = 0; i < block->size; ++i) {
-            if (name == block->regs[i].name)
+            if (pattern == block->regs[i].name)
                 regs.push_back(&block->regs[i]);
         }
     }
 
     return regs;
+}
+
+const amdregdb::RegSpec *AmdGpuDevice::getRegSpec(std::string name)
+{
+    std::vector<const amdregdb::RegSpec *> regs;
+
+    for (auto const &block : mRegBlocks) {
+        for (int i = 0; i < block->size; ++i) {
+            if (name == block->regs[i].name)
+                return &block->regs[i];
+        }
+    }
+
+    return NULL;
 }
 
 void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val)
@@ -187,6 +202,48 @@ void AmdGpuDevice::populateGcaInfo()
     failOn(mGcaInfo.version < sRequiredGcaInfoVer,
            "Current gca_info version unsupported, have(%d) need(%d)\n", mGcaInfo.version,
            sRequiredGcaInfoVer);
+}
+
+void AmdGpuDevice::fillWaveInfo(int fd, WaveInfo *wave)
+{
+    int r = 0;
+    uint64_t offset;
+
+    offset = ((uint64_t)(wave->se & 0xFF)) << 7;
+    offset |= ((uint64_t)(wave->sh & 0xFF)) << 15;
+    offset |= ((uint64_t)(wave->cu & 0xFF)) << 23;
+    offset |= ((uint64_t)(wave->wave & 0xFF)) << 31;
+    offset |= ((uint64_t)(wave->simd & 0xFF)) << 37;
+
+    r = ::lseek64(fd, offset, SEEK_SET);
+    failOn(r == -1, "Failed to seek wave\n");
+
+    ::memset(&wave->mWaveInfo, 0, sizeof(wave->mWaveInfo));
+
+    r = ::read(fd, (void *)&wave->mWaveInfo, sizeof(wave->mWaveInfo));
+    failOn(r != sizeof(wave->mWaveInfo), "Failed to read wave_info %s\n", sWaveInfoPath);
+
+    failOn(wave->mWaveInfo.version < sRequiredWaveInfoVer,
+           "Current wave_info version unsupported, have(%d) need(%d)\n",
+           wave->mWaveInfo.version, sRequiredWaveInfoVer);
+}
+
+std::vector<std::unique_ptr<WaveInfo>> AmdGpuDevice::getWaveInfo()
+{
+    int fd;
+    std::vector<std::unique_ptr<WaveInfo>> waves;
+    std::unique_ptr<WaveInfo> wave;
+
+    fd = open(sWaveInfoPath, O_RDWR);
+    failOn(fd < 0, "Error opening %s for AmdGpuDevice, are your root?\n", sWaveInfoPath);
+    SCOPE_EXIT { close(fd); };
+
+    wave = util::make_unique<WaveInfo>(0, 0, 0, 0, 0);
+    fillWaveInfo(fd, wave.get());
+
+    waves.push_back(std::move(wave));
+
+    return waves;
 }
 
 // ---------------------------------------------------------------------------

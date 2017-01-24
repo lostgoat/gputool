@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <amdregdb/RegSpec.h>
 #include <stdint.h>
 #include <memory>
 #include "AmdDebugFs.h"
@@ -27,7 +28,6 @@ namespace gputool
 {
 // ---------------------------------------------------------------------------
 
-struct RegSpec;
 class UserInput;
 class AmdGpuDevice;
 
@@ -44,6 +44,7 @@ class GpuToolUi
     int doRegOp(const UserInput &input);
     int doPrintGcaInfo(const UserInput &input);
     int doPrintWaveInfo(const UserInput &input);
+    void printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val);
 
     std::unique_ptr<AmdGpuDevice> mGpuDevice;
 };
