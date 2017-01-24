@@ -53,6 +53,7 @@ class UserInput
     std::string mOriginalInput;
     UserCommand mCommand;
     std::string mRegName;
+    std::string mFieldName;
     uint32_t mRegValue;
 };
 
@@ -76,6 +77,12 @@ UserInput::UserInput(std::string command)
             mCommand = UC_BAD_INPUT;
 
         mRegValue = std::atoi(token.c_str());
+        size_t pos = mRegName.find('.');
+        if (pos != std::string::npos) {
+            std::string tmp = mRegName;
+            mRegName = tmp.substr(0, pos);
+            mFieldName = tmp.substr(pos + 1, tmp.length() - pos);
+        }
     } else if (token == "gca_info") {
         mCommand = UC_PRINT_GCA_INFO;
     } else if (token == "wave_priority") {
@@ -174,8 +181,17 @@ int GpuToolUi::doRegOp(const UserInput &input)
     std::vector<const amdregdb::RegSpec *> regSpec =
         mGpuDevice->getRegSpecs(input.mRegName);
     for (auto const &reg : regSpec) {
+
+        const amdregdb::RegField *pField = NULL;
+        if (!input.mFieldName.empty()) {
+            for (auto const &field : reg->fields) {
+                if (field.name == input.mFieldName)
+                    pField = &field;
+            }
+        }
+
         if (input.mCommand == UserInput::UC_REG_WRITE)
-            mGpuDevice->write(*reg, input.mRegValue);
+            mGpuDevice->write(*reg, input.mRegValue, pField);
 
         regVal = mGpuDevice->read(*reg);
         printFormattedReg(reg, regVal);

@@ -189,13 +189,21 @@ const amdregdb::RegSpec *AmdGpuDevice::getRegSpec(std::string name)
     return NULL;
 }
 
-void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val)
+void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val, const amdregdb::RegField *pField)
 {
     int r;
+
+    if (pField) {
+        uint32_t tmp = read(reg);
+        tmp = tmp ^ pField->mask;
+        tmp |= val << pField->shift;
+        val = tmp;
+    }
 
     /* Careful: Register offset is in sequence number, not bytes*/
     r = ::lseek(mRegFd, reg.offset * sRegSizeByte, SEEK_SET);
     failOn(r == -1, "Failed to seek register %s\n", reg.name);
+
 
     r = ::write(mRegFd, (void *)&val, sizeof(val));
     failOn(r != sizeof(val), "Failed to write register %s\n", reg.name);

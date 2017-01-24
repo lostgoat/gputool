@@ -78,7 +78,7 @@ class AmdGpuDevice
     ~AmdGpuDevice();
 
     uint32_t read(const amdregdb::RegSpec &reg);
-    void write(const amdregdb::RegSpec &reg, uint32_t val);
+    void write(const amdregdb::RegSpec &reg, uint32_t val, const amdregdb::RegField *pField);
     std::vector<const amdregdb::RegSpec *> getRegSpecs(std::string pattern);
     const amdregdb::RegSpec *getRegSpec(std::string name);
     std::vector<std::unique_ptr<WaveInfo>> getWaveInfo();
