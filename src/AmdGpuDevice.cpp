@@ -145,6 +145,19 @@ uint32_t AmdGpuDevice::read(const amdregdb::RegSpec &reg)
     return val;
 }
 
+uint32_t AmdGpuDevice::getFieldAs(std::string regName, std::string fieldName, uint32_t val)
+{
+    const amdregdb::RegSpec *spec = getRegSpec(regName);
+
+    for (auto const &field : spec->fields) {
+        if (field.name == fieldName)
+            return (val & field.mask) >> field.shift;
+    }
+
+    failOn(true, "Couldn't find reg field\n");
+    return 0;
+}
+
 std::vector<const amdregdb::RegSpec *> AmdGpuDevice::getRegSpecs(std::string pattern)
 {
     std::vector<const amdregdb::RegSpec *> regs;
@@ -238,9 +251,9 @@ std::vector<std::unique_ptr<WaveInfo>> AmdGpuDevice::getWaveInfo()
     failOn(fd < 0, "Error opening %s for AmdGpuDevice, are your root?\n", sWaveInfoPath);
     SCOPE_EXIT { close(fd); };
 
-    for (int iSe = 0; iSe < mGcaInfo.ax_shader_engines; ++iSe) {
-        for (int iSh = 0; iSh < mGcaInfo.max_sh_per_se; ++iSh) {
-            for (int iCu = 0; iCu <mGcaInfo.max_cu_per_sh; ++iCu) {
+    for (size_t iSe = 0; iSe < mGcaInfo.ax_shader_engines; ++iSe) {
+        for (size_t iSh = 0; iSh < mGcaInfo.max_sh_per_se; ++iSh) {
+            for (size_t iCu = 0; iCu <mGcaInfo.max_cu_per_sh; ++iCu) {
                 wave = util::make_unique<WaveInfo>(iSe, iSh, iCu, 0, 0);
                 fillWaveInfo(fd, wave.get());
                 waves.push_back(std::move(wave));

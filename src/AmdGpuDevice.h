@@ -82,6 +82,7 @@ class AmdGpuDevice
     std::vector<const amdregdb::RegSpec *> getRegSpecs(std::string pattern);
     const amdregdb::RegSpec *getRegSpec(std::string name);
     std::vector<std::unique_ptr<WaveInfo>> getWaveInfo();
+    uint32_t getFieldAs(std::string regName, std::string fieldName, uint32_t val);
 
     amddebugfs::gca_info mGcaInfo;
 

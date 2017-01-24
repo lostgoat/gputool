@@ -41,6 +41,7 @@ class UserInput
         UC_REG_WRITE,
         UC_PRINT_GCA_INFO,
         UC_PRINT_WAVE_INFO,
+        UC_PRINT_WAVE_PRIORITY_INFO,
         UC_BAD_INPUT,
         UC_EXIT,
     } UserCommand;
@@ -77,6 +78,8 @@ UserInput::UserInput(std::string command)
         mRegValue = std::atoi(token.c_str());
     } else if (token == "gca_info") {
         mCommand = UC_PRINT_GCA_INFO;
+    } else if (token == "wave_priority") {
+        mCommand = UC_PRINT_WAVE_PRIORITY_INFO;
     } else if (token == "wave_info") {
         mCommand = UC_PRINT_WAVE_INFO;
     } else if (token == "exit" || token == "quit") {
@@ -125,6 +128,9 @@ int GpuToolUi::dispatch(const UserInput &input)
             break;
         case UserInput::UC_PRINT_WAVE_INFO:
             doPrintWaveInfo(input);
+            break;
+        case UserInput::UC_PRINT_WAVE_PRIORITY_INFO:
+            doPrintWavePriorityInfo(input);
             break;
         case UserInput::UC_EXIT:
             // nothing to do here
@@ -245,6 +251,33 @@ int GpuToolUi::doPrintWaveInfo(const UserInput &input)
         printf("\n");
     }
 
+    return 0;
+}
+
+int GpuToolUi::doPrintWavePriorityInfo(const UserInput &input)
+{
+    std::vector<std::unique_ptr<WaveInfo>> waves = mGpuDevice->getWaveInfo();
+
+    int numCus = 0;
+    int numCusValid = 0;
+
+    for (auto const &waveInfo : waves) {
+        amddebugfs::wave_info *data = &waveInfo->mWaveInfo;
+        numCus++;
+
+        if (!mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "VALID", data->status))
+            continue;
+
+        numCusValid++;
+        printf("%d:%d:%d: VMID:0x%x SPI_PRIO:0x%x USER_PRIO:0x%x\n",
+                waveInfo->se, waveInfo->sh, waveInfo->cu,
+                mGpuDevice->getFieldAs("SQ_WAVE_HW_ID", "VM_ID", data->hw_id),
+                mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "SPI_PRIO", data->status),
+                mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "USER_PRIO", data->status)
+                );
+    }
+
+    printf("%d/%d CUs in use %d%%\n", numCusValid, numCus, numCusValid*100/numCus);
     return 0;
 }
 
