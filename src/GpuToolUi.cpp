@@ -137,11 +137,20 @@ void GpuToolUi::printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val)
 {
     failOn(!spec, "Missing a register definition\n");
 
-    /* This could probably use a real formatting attempt */
-    printf("    %s: 0x%x\n", spec->name, val);
-    for (auto const &field : spec->fields) {
-        uint32_t fieldVal = (val & field.mask) >> field.shift;
-        printf("      %s: 0x%x\n", field.name, fieldVal);
+    switch (spec->fields.size()) {
+        case 0:
+            printf("    %s: 0x%x\n", spec->name, val);
+            break;
+        case 1:
+            printf("    %s: %s 0x%x\n", spec->name, spec->fields.front().name, val);
+            break;
+        default:
+            printf("    %s: 0x%x\n", spec->name, val);
+            for (auto const &field : spec->fields) {
+                uint32_t fieldVal = (val & field.mask) >> field.shift;
+                printf("      %s: 0x%x\n", field.name, fieldVal);
+            }
+            break;
     }
 }
 
