@@ -277,7 +277,7 @@ void AmdGpuDevice::writeField(const amdregdb::RegSpec &reg, std::string fieldNam
     uint32_t tmp = read(reg);
     const amdregdb::RegField * fieldSpec = getFieldSpec(reg, fieldName);
 
-    tmp = tmp ^ fieldSpec->mask;
+    tmp = tmp & fieldSpec->mask;
     tmp |= val << fieldSpec->shift;
     val = tmp;
 
