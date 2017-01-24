@@ -78,14 +78,27 @@ class AmdGpuDevice
     ~AmdGpuDevice();
 
     uint32_t read(const amdregdb::RegSpec &reg);
-    void write(const amdregdb::RegSpec &reg, uint32_t val,
-               const amdregdb::RegField *pField);
+    uint32_t read(std::string regName);
+    uint32_t readField(const amdregdb::RegSpec &reg, std::string fieldName);
+    uint32_t readField(std::string regName, std::string fieldName);
+    uint32_t srbmRead(std::string regName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid);
+    uint32_t srbmReadField(std::string regName, std::string fieldName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid);
+
+    void write(const amdregdb::RegSpec &reg, uint32_t val);
+    void write(std::string, uint32_t val);
+    void writeField(const amdregdb::RegSpec &reg, std::string fieldName, uint32_t val);
+    void writeField(std::string regName, std::string fieldName, uint32_t val);
+    void srbmWrite(std::string regName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid, uint32_t val);
+    void srbmWriteField(std::string regName, std::string fieldName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid, uint32_t val);
+
     std::vector<const amdregdb::RegSpec *> getRegSpecs(std::string pattern);
     const amdregdb::RegSpec *getRegSpec(std::string name);
-    std::vector<std::unique_ptr<WaveInfo>> getWaveInfo();
+    const amdregdb::RegField *getFieldSpec(const amdregdb::RegSpec &reg, std::string name);
+
     uint32_t getFieldAs(std::string regName, std::string fieldName, uint32_t val);
 
     amddebugfs::gca_info mGcaInfo;
+    std::vector<std::unique_ptr<WaveInfo>> getWaveInfo();
 
   private:
     AsicType getAsicType();
@@ -93,6 +106,8 @@ class AmdGpuDevice
     void populateGcaInfo();
     bool supportsBlock(const amdregdb::RegBlock *block);
     void fillWaveInfo(int fd, WaveInfo *wave);
+    void srbmSelect(uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid);
+    void srbmClear();
 
     int mRegFd;
     std::vector<const amdregdb::RegBlock *> mRegBlocks;

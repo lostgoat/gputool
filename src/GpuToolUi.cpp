@@ -39,6 +39,8 @@ class UserInput
     typedef enum UserCommand {
         UC_REG_READ = 0,
         UC_REG_WRITE,
+        UC_REG_SRBM_READ,
+        UC_REG_SRBM_WRITE,
         UC_PRINT_GCA_INFO,
         UC_PRINT_WAVE_INFO,
         UC_PRINT_WAVE_PRIORITY_INFO,
@@ -55,44 +57,83 @@ class UserInput
     std::string mRegName;
     std::string mFieldName;
     uint32_t mRegValue;
+
+    /* SRBM info */
+    uint32_t mMe;
+    uint32_t mPipe;
+    uint32_t mQueue;
+    uint32_t mVmid;
+
+  private:
+    std::istringstream mParseStream;
+    uint32_t getInt();
+    std::string getString();
 };
 
-UserInput::UserInput(std::string command)
-    : mOriginalInput(command), mCommand(UC_BAD_INPUT), mRegName(""), mRegValue(0)
+uint32_t UserInput::getInt()
 {
-    std::istringstream ss(command + " ");
+    std::string str = getString();
+    if (str.find('x') != std::string::npos)
+        return std::strtoul(str.c_str(), NULL, 16);
+    else
+        return std::atoi(str.c_str());
+}
+
+std::string UserInput::getString()
+{
     std::string token;
+    std::getline(mParseStream, token, ' ');
+    return token;
+}
+
+UserInput::UserInput(std::string command)
+    : mOriginalInput(command), mCommand(UC_BAD_INPUT), mRegName(""), mRegValue(0), mParseStream(command + " ")
+{
+    std::string strInput;
+    uint32_t intInput;
+
 
     /* Barebones parser */
-    std::getline(ss, token, ' ');
-    if (token == "read") {
+    strInput = getString();
+    if (strInput == "read") {
         mCommand = UC_REG_READ;
-        std::getline(ss, mRegName, ' ');
-    } else if (token == "write") {
+        mRegName = getString();
+    } else if (strInput == "write") {
         mCommand = UC_REG_WRITE;
-        std::getline(ss, mRegName, ' ');
-
-        std::getline(ss, token, ' ');
-        if (token.empty())
-            mCommand = UC_BAD_INPUT;
-
-        mRegValue = std::atoi(token.c_str());
-        size_t pos = mRegName.find('.');
-        if (pos != std::string::npos) {
-            std::string tmp = mRegName;
-            mRegName = tmp.substr(0, pos);
-            mFieldName = tmp.substr(pos + 1, tmp.length() - pos);
-        }
-    } else if (token == "gca_info") {
+        mRegName = getString();
+        mRegValue = getInt();
+    } else if (strInput == "srbm_read") {
+        mCommand = UC_REG_SRBM_READ;
+        mMe = getInt();
+        mPipe = getInt();
+        mQueue = getInt();
+        mVmid = getInt();
+        mRegName = getString();
+    } else if (strInput == "srbm_write") {
+        mCommand = UC_REG_SRBM_WRITE;
+        mMe = getInt();
+        mPipe = getInt();
+        mQueue = getInt();
+        mVmid = getInt();
+        mRegName = getString();
+        mRegValue = getInt();
+    } else if (strInput == "gca_info") {
         mCommand = UC_PRINT_GCA_INFO;
-    } else if (token == "wave_priority") {
+    } else if (strInput == "wave_priority") {
         mCommand = UC_PRINT_WAVE_PRIORITY_INFO;
-    } else if (token == "wave_info") {
+    } else if (strInput == "wave_info") {
         mCommand = UC_PRINT_WAVE_INFO;
-    } else if (token == "exit" || token == "quit") {
+    } else if (strInput == "exit" || strInput == "quit") {
         mCommand = UC_EXIT;
     } else {
         mCommand = UC_BAD_INPUT;
+    }
+
+    size_t pos = mRegName.find('.');
+    if (pos != std::string::npos) {
+        std::string tmp = mRegName;
+        mRegName = tmp.substr(0, pos);
+        mFieldName = tmp.substr(pos + 1, tmp.length() - pos);
     }
 }
 
@@ -126,6 +167,8 @@ int GpuToolUi::runSingle(std::string command)
 int GpuToolUi::dispatch(const UserInput &input)
 {
     switch (input.mCommand) {
+        case UserInput::UC_REG_SRBM_READ:
+        case UserInput::UC_REG_SRBM_WRITE:
         case UserInput::UC_REG_READ:
         case UserInput::UC_REG_WRITE:
             doRegOp(input);
@@ -176,25 +219,33 @@ void GpuToolUi::printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val)
 
 int GpuToolUi::doRegOp(const UserInput &input)
 {
-    uint32_t regVal;
-
     std::vector<const amdregdb::RegSpec *> regSpec =
         mGpuDevice->getRegSpecs(input.mRegName);
     for (auto const &reg : regSpec) {
-
-        const amdregdb::RegField *pField = NULL;
-        if (!input.mFieldName.empty()) {
-            for (auto const &field : reg->fields) {
-                if (field.name == input.mFieldName)
-                    pField = &field;
-            }
+        switch (input.mCommand) {
+            case UserInput::UC_REG_WRITE:
+                if (input.mFieldName.empty()) {
+                    mGpuDevice->write(*reg, input.mRegValue);
+                } else {
+                    mGpuDevice->writeField(*reg, input.mFieldName, input.mRegValue);
+                }
+                /* fallthrough */
+            case UserInput::UC_REG_READ:
+                printFormattedReg(reg, mGpuDevice->read(*reg));
+                break;
+            case UserInput::UC_REG_SRBM_WRITE:
+                if (input.mFieldName.empty()) {
+                    mGpuDevice->srbmWrite(reg->name, input.mMe, input.mPipe, input.mQueue, input.mVmid, input.mRegValue);
+                } else {
+                    mGpuDevice->srbmWriteField(reg->name, input.mFieldName, input.mMe, input.mPipe, input.mQueue, input.mVmid, input.mRegValue);
+                }
+                /* fallthrough */
+            case UserInput::UC_REG_SRBM_READ:
+                printFormattedReg(reg, mGpuDevice->srbmRead(reg->name, input.mMe, input.mPipe, input.mQueue, input.mVmid));
+                break;
+            default:
+                return -1;
         }
-
-        if (input.mCommand == UserInput::UC_REG_WRITE)
-            mGpuDevice->write(*reg, input.mRegValue, pField);
-
-        regVal = mGpuDevice->read(*reg);
-        printFormattedReg(reg, regVal);
     }
 
     return 0;

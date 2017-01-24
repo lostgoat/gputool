@@ -92,6 +92,7 @@ void AmdGpuDevice::populateSupportedBlocks()
             mSupportedBlockNames.push_back(std::string("gca_gfx_8_0"));
             mSupportedBlockNames.push_back(std::string("uvd_uvd_6_3"));
             mSupportedBlockNames.push_back(std::string("vce_vce_3_4"));
+            mSupportedBlockNames.push_back(std::string("oss_oss_3_0"));
             break;
         case CHIP_CARRIZO:
             mSupportedBlockNames.push_back(std::string("gmc_gmc_8_0"));
@@ -142,6 +143,65 @@ uint32_t AmdGpuDevice::read(const amdregdb::RegSpec &reg)
     return val;
 }
 
+uint32_t AmdGpuDevice::read(std::string regName)
+{
+    return read(*getRegSpec(regName));
+}
+
+uint32_t AmdGpuDevice::readField(const amdregdb::RegSpec &reg, std::string fieldName)
+{
+    uint32_t val = read(reg);
+    const amdregdb::RegField * fieldSpec = getFieldSpec(reg, fieldName);
+    return (val & fieldSpec->mask) >> fieldSpec->shift;
+}
+
+uint32_t AmdGpuDevice::readField(std::string regName, std::string fieldName)
+{
+    return readField(*getRegSpec(regName), fieldName);
+}
+
+uint32_t AmdGpuDevice::srbmRead(std::string regName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid)
+{
+    srbmSelect(me, pipe, queue, vmid);
+    SCOPE_EXIT { srbmClear(); };
+
+    return read(regName);
+}
+
+uint32_t AmdGpuDevice::srbmReadField(std::string regName, std::string fieldName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid)
+{
+    srbmSelect(me, pipe, queue, vmid);
+    SCOPE_EXIT { srbmClear(); };
+
+    return readField(regName, fieldName);
+}
+
+void AmdGpuDevice::srbmSelect(uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid)
+{
+    const amdregdb::RegSpec *srbmSpec = getRegSpec("SRBM_GFX_CNTL");
+    const amdregdb::RegField *field = NULL;
+    uint32_t val = 0;
+
+    field = getFieldSpec(*srbmSpec, "PIPEID");
+    val |= (pipe << field->shift) & field->mask;
+
+    field = getFieldSpec(*srbmSpec, "MEID");
+    val |= (me << field->shift) & field->mask;
+
+    field = getFieldSpec(*srbmSpec, "VMID");
+    val |= (vmid << field->shift) & field->mask;
+
+    field = getFieldSpec(*srbmSpec, "QUEUEID");
+    val |= (queue << field->shift) & field->mask;
+
+    write(*srbmSpec, val);
+}
+
+void AmdGpuDevice::srbmClear()
+{
+    srbmSelect(0, 0, 0, 0);
+}
+
 uint32_t AmdGpuDevice::getFieldAs(std::string regName, std::string fieldName,
                                   uint32_t val)
 {
@@ -175,8 +235,6 @@ std::vector<const amdregdb::RegSpec *> AmdGpuDevice::getRegSpecs(std::string pat
 
 const amdregdb::RegSpec *AmdGpuDevice::getRegSpec(std::string name)
 {
-    std::vector<const amdregdb::RegSpec *> regs;
-
     for (auto const &block : mRegBlocks) {
         for (int i = 0; i < block->size; ++i) {
             if (name == block->regs[i].name)
@@ -187,17 +245,19 @@ const amdregdb::RegSpec *AmdGpuDevice::getRegSpec(std::string name)
     return NULL;
 }
 
-void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val,
-                         const amdregdb::RegField *pField)
+const amdregdb::RegField *AmdGpuDevice::getFieldSpec(const amdregdb::RegSpec &reg, std::string name)
+{
+    for (auto const &field : reg.fields) {
+        if (name == field.name)
+            return &field;
+    }
+
+    return NULL;
+}
+
+void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val)
 {
     int r;
-
-    if (pField) {
-        uint32_t tmp = read(reg);
-        tmp = tmp ^ pField->mask;
-        tmp |= val << pField->shift;
-        val = tmp;
-    }
 
     /* Careful: Register offset is in sequence number, not bytes*/
     r = ::lseek(mRegFd, reg.offset * sRegSizeByte, SEEK_SET);
@@ -205,6 +265,44 @@ void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val,
 
     r = ::write(mRegFd, (void *)&val, sizeof(val));
     failOn(r != sizeof(val), "Failed to write register %s\n", reg.name);
+}
+
+void AmdGpuDevice::write(std::string regName, uint32_t val)
+{
+    write(*getRegSpec(regName), val);
+}
+
+void AmdGpuDevice::writeField(const amdregdb::RegSpec &reg, std::string fieldName, uint32_t val)
+{
+    uint32_t tmp = read(reg);
+    const amdregdb::RegField * fieldSpec = getFieldSpec(reg, fieldName);
+
+    tmp = tmp ^ fieldSpec->mask;
+    tmp |= val << fieldSpec->shift;
+    val = tmp;
+
+    write(reg, val);
+}
+
+void AmdGpuDevice::writeField(std::string regName, std::string fieldName, uint32_t val)
+{
+    writeField(*getRegSpec(regName), fieldName, val);
+}
+
+void AmdGpuDevice::srbmWrite(std::string regName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid, uint32_t val)
+{
+    srbmSelect(me, pipe, queue, vmid);
+    SCOPE_EXIT { srbmClear(); };
+
+    write(regName, val);
+}
+
+void AmdGpuDevice::srbmWriteField(std::string regName, std::string fieldName, uint32_t me, uint32_t pipe, uint32_t queue, uint32_t vmid, uint32_t val)
+{
+    srbmSelect(me, pipe, queue, vmid);
+    SCOPE_EXIT { srbmClear(); };
+
+    writeField(regName, fieldName, val);
 }
 
 void AmdGpuDevice::populateGcaInfo()
