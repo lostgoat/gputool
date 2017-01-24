@@ -137,12 +137,12 @@ void GpuToolUi::printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val)
 {
     failOn(!spec, "Missing a register definition\n");
 
-    switch (spec->fields.size()) {
+    switch(spec->fields.size()) {
         case 0:
             printf("    %s: 0x%x\n", spec->name, val);
             break;
         case 1:
-            printf("    %s: %s 0x%x\n", spec->name, spec->fields.front().name, val);
+            printf("    %s: %s 0x%x\n", spec->name, spec->fields.front().name,  val);
             break;
         default:
             printf("    %s: 0x%x\n", spec->name, val);
@@ -173,7 +173,7 @@ int GpuToolUi::doRegOp(const UserInput &input)
 
 int GpuToolUi::doPrintGcaInfo(const UserInput &input)
 {
-#define DUMP_FIELD(name) printf("%s: 0x%x\n", #name, mGpuDevice->mGcaInfo.name)
+#define DUMP_FIELD(name) printf("    %s: 0x%x\n", #name, mGpuDevice->mGcaInfo.name)
     DUMP_FIELD(version);
     DUMP_FIELD(ax_shader_engines);
     DUMP_FIELD(max_tile_pipes);
@@ -212,11 +212,10 @@ int GpuToolUi::doPrintWaveInfo(const UserInput &input)
 {
     std::vector<std::unique_ptr<WaveInfo>> waves = mGpuDevice->getWaveInfo();
 
-    int i = 0;
     for (auto const &waveInfo : waves) {
         amddebugfs::wave_info *data = &waveInfo->mWaveInfo;
 
-        printf("Wave: %d\n", i++);
+        printf("Wave SE(%d) SH(%d) CU(%d):\n", waveInfo->se, waveInfo->sh, waveInfo->cu);
 
         printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_STATUS"), data->status);
         printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_PC_LO"), data->pc_lo);
@@ -236,6 +235,7 @@ int GpuToolUi::doPrintWaveInfo(const UserInput &input)
         printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_TMA_HI"), data->tma_hi);
         printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_IB_DBG0"), data->ib_dbg0);
         printFormattedReg(mGpuDevice->getRegSpec("SQ_WAVE_M0"), data->m0);
+        printf("\n");
     }
 
     return 0;
