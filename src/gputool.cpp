@@ -27,9 +27,6 @@ int main(int argc, char *argv[])
     int r = 0;
     std::string command = "";
 
-    printf("Starting gputool v%d.%d.%d\n", GPUTOOL_VERSION_MAJOR, GPUTOOL_VERSION_MINOR,
-           GPUTOOL_VERSION_PATCH);
-
     try {
         auto ui = util::make_unique<gputool::GpuToolUi>();
 

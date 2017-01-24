@@ -49,12 +49,9 @@ AmdGpuDevice::AmdGpuDevice() : mRegFd(-1)
 
     for (auto const &block : amdregdb::gRegDb) {
         if (supportsBlock(block)) {
-            printf("Loading %s\n", block->name);
             mRegBlocks.push_back(block);
         }
     }
-
-    printf("Initialized AmdGpuDevice\n");
 }
 
 AmdGpuDevice::~AmdGpuDevice()
