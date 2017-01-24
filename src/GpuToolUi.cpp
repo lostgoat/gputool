@@ -157,12 +157,12 @@ void GpuToolUi::printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val)
 {
     failOn(!spec, "Missing a register definition\n");
 
-    switch(spec->fields.size()) {
+    switch (spec->fields.size()) {
         case 0:
             printf("    %s: 0x%x\n", spec->name, val);
             break;
         case 1:
-            printf("    %s: %s 0x%x\n", spec->name, spec->fields.front().name,  val);
+            printf("    %s: %s 0x%x\n", spec->name, spec->fields.front().name, val);
             break;
         default:
             printf("    %s: 0x%x\n", spec->name, val);
@@ -285,15 +285,14 @@ int GpuToolUi::doPrintWavePriorityInfo(const UserInput &input)
             continue;
 
         numCusValid++;
-        printf("%d:%d:%d: VMID:0x%x SPI_PRIO: 0x%x USER_PRIO: 0x%x\n",
-                waveInfo->se, waveInfo->sh, waveInfo->cu,
-                mGpuDevice->getFieldAs("SQ_WAVE_HW_ID", "VM_ID", data->hw_id),
-                mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "SPI_PRIO", data->status),
-                mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "USER_PRIO", data->status)
-                );
+        printf("%d:%d:%d: VMID:0x%x SPI_PRIO: 0x%x USER_PRIO: 0x%x\n", waveInfo->se,
+               waveInfo->sh, waveInfo->cu,
+               mGpuDevice->getFieldAs("SQ_WAVE_HW_ID", "VM_ID", data->hw_id),
+               mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "SPI_PRIO", data->status),
+               mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "USER_PRIO", data->status));
     }
 
-    printf("%d/%d CUs in use %d%%\n", numCusValid, numCus, numCusValid*100/numCus);
+    printf("%d/%d CUs in use %d%%\n", numCusValid, numCus, numCusValid * 100 / numCus);
     return 0;
 }
 

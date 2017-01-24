@@ -142,7 +142,8 @@ uint32_t AmdGpuDevice::read(const amdregdb::RegSpec &reg)
     return val;
 }
 
-uint32_t AmdGpuDevice::getFieldAs(std::string regName, std::string fieldName, uint32_t val)
+uint32_t AmdGpuDevice::getFieldAs(std::string regName, std::string fieldName,
+                                  uint32_t val)
 {
     const amdregdb::RegSpec *spec = getRegSpec(regName);
 
@@ -186,7 +187,8 @@ const amdregdb::RegSpec *AmdGpuDevice::getRegSpec(std::string name)
     return NULL;
 }
 
-void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val, const amdregdb::RegField *pField)
+void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val,
+                         const amdregdb::RegField *pField)
 {
     int r;
 
@@ -200,7 +202,6 @@ void AmdGpuDevice::write(const amdregdb::RegSpec &reg, uint32_t val, const amdre
     /* Careful: Register offset is in sequence number, not bytes*/
     r = ::lseek(mRegFd, reg.offset * sRegSizeByte, SEEK_SET);
     failOn(r == -1, "Failed to seek register %s\n", reg.name);
-
 
     r = ::write(mRegFd, (void *)&val, sizeof(val));
     failOn(r != sizeof(val), "Failed to write register %s\n", reg.name);
@@ -258,7 +259,7 @@ std::vector<std::unique_ptr<WaveInfo>> AmdGpuDevice::getWaveInfo()
 
     for (size_t iSe = 0; iSe < mGcaInfo.ax_shader_engines; ++iSe) {
         for (size_t iSh = 0; iSh < mGcaInfo.max_sh_per_se; ++iSh) {
-            for (size_t iCu = 0; iCu <mGcaInfo.max_cu_per_sh; ++iCu) {
+            for (size_t iCu = 0; iCu < mGcaInfo.max_cu_per_sh; ++iCu) {
                 wave = util::make_unique<WaveInfo>(iSe, iSh, iCu, 0, 0);
                 fillWaveInfo(fd, wave.get());
                 waves.push_back(std::move(wave));
