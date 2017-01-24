@@ -106,6 +106,13 @@ int GpuToolUi::run()
     return 0;
 }
 
+int GpuToolUi::runSingle(std::string command)
+{
+    std::unique_ptr<UserInput> input = util::make_unique<UserInput>(command);
+
+    return dispatch(*input);
+}
+
 int GpuToolUi::dispatch(const UserInput &input)
 {
     switch (input.mCommand) {

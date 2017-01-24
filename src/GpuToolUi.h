@@ -37,6 +37,7 @@ class GpuToolUi
     GpuToolUi();
     ~GpuToolUi();
     int run();
+    int runSingle(std::string command);
 
   private:
     std::unique_ptr<UserInput> getNextInput();

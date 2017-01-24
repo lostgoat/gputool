@@ -22,16 +22,26 @@
 #include <util/util.h>
 #include "GpuToolUi.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     int r = 0;
+    std::string command = "";
 
     printf("Starting gputool v%d.%d.%d\n", GPUTOOL_VERSION_MAJOR, GPUTOOL_VERSION_MINOR,
            GPUTOOL_VERSION_PATCH);
 
     try {
         auto ui = util::make_unique<gputool::GpuToolUi>();
-        r = ui->run();
+
+        if (argc > 1) {
+            for (int i = 1; i < argc; ++i) {
+                command += argv[i];
+                command += " ";
+            }
+            r = ui->runSingle(command);
+        } else {
+            r = ui->run();
+        }
     } catch (...) {
         std::terminate();
     }
