@@ -269,7 +269,7 @@ int GpuToolUi::doPrintWavePriorityInfo(const UserInput &input)
             continue;
 
         numCusValid++;
-        printf("%d:%d:%d: VMID:0x%x SPI_PRIO:0x%x USER_PRIO:0x%x\n",
+        printf("%d:%d:%d: VMID:0x%x SPI_PRIO: 0x%x USER_PRIO: 0x%x\n",
                 waveInfo->se, waveInfo->sh, waveInfo->cu,
                 mGpuDevice->getFieldAs("SQ_WAVE_HW_ID", "VM_ID", data->hw_id),
                 mGpuDevice->getFieldAs("SQ_WAVE_STATUS", "SPI_PRIO", data->status),
