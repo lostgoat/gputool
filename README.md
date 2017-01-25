@@ -58,7 +58,9 @@ Commands
 Following is a list of supported commands:
 
 
- * The read command reads a register
+###Register Read
+
+The read command reads a register
 
 ```
 read <regname>
@@ -80,8 +82,9 @@ andres@andres-vr:~/git/linux$ sudo gputool read TCC_CTRL
       METADATA_LATENCY_FIFO_SIZE: 0xf
       MDC_SIZE: 0x3
 ```
+### Register Write
 
- * The write command writes to a register or register field
+The write command writes to a register or register field
 
 ```
 write <regname>.<optional fieldname> <value>
@@ -105,7 +108,9 @@ andres@andres-vr:~/git/gputool/build$ sudo gputool write TCC_CTRL.METADATA_LATEN
       MDC_SIZE: 0x3
 ```
 
- * The gca_info command dumps some of the basic HW information
+### GCA Info
+
+The gca_info command dumps some of the basic HW information
 
 ```
 gca_info
@@ -147,7 +152,9 @@ andres@andres-vr:~/git/gputool/build$ sudo gputool gca_info
     external_rev_id: 0x51
 ```
 
- * The wave_info command dumps wave/CU information
+### Wave Info
+
+The wave_info command dumps wave/CU information
 
 ```
 wave_info
@@ -246,7 +253,10 @@ Wave SE(0) SH(0) CU(0):
 
 ```
 
- * The wave_priority command prints a summary of currently executing wave priorities
+### Wave Priority
+
+The wave_priority command prints a summary of currently executing wave priorities
+
 ```
 wave_priority
 ```
@@ -290,6 +300,55 @@ andres@andres-vr:~/git/gputool/build$ sudo gputool wave_priority
 3:0:7: VMID:0x5 SPI_PRIO: 0x2 USER_PRIO: 0x0
 3:0:8: VMID:0x1 SPI_PRIO: 0x0 USER_PRIO: 0x0
 35/36 CUs in use 97%
+```
+
+### SRBM Register Read
+
+The srbm_read command reads an SRBM register. The me/pipe/queue/vmid
+information can be retreived from the wave_info command.
+
+```
+srbm_read <me> <pipe> <queue> <vmid> <regname>
+```
+
+Example:
+```
+andres@andres-vr:~/git/gputool/build$ sudo gputool srbm_read 1 0 0 0 COMPUTE_PGM_RSRC1
+    SRBM_GFX_CNTL: 0x4
+      QUEUEID: 0x0
+      VMID: 0x0
+      PIPEID: 0x0
+      MEID: 0x1
+    SRBM_GFX_CNTL: 0x0
+      QUEUEID: 0x0
+      VMID: 0x0
+      PIPEID: 0x0
+      MEID: 0x0
+    COMPUTE_PGM_RSRC1: 0x2c0c82
+      BULKY: 0x0
+      FLOAT_MODE: 0xc0
+      CDBG_USER: 0x0
+      IEEE_MODE: 0x0
+      PRIORITY: 0x3
+      SGPRS: 0x2
+      DEBUG_MODE: 0x0
+      VGPRS: 0x2
+      DX10_CLAMP: 0x1
+      PRIV: 0x0
+```
+
+#### Tip for retreiving SRBM info
+
+```
+sudo gputool wave_info | egrep 'Wave|VALID|ME|PIPE|VM_ID|QUEUE'
+```
+
+### SRBM Register Write
+
+The srbm_write command reads an SRBM register.
+
+```
+srbm_write <me> <pipe> <queue> <vmid> <regname>
 ```
 
 Extra Build Targets
