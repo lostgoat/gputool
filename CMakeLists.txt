@@ -23,7 +23,7 @@ project(gputool)
 
 # Version number
 set (GPUTOOL_VERSION_MAJOR 0)
-set (GPUTOOL_VERSION_MINOR 1)
+set (GPUTOOL_VERSION_MINOR 2)
 set (GPUTOOL_VERSION_PATCH 0)
 
 set (AUTOGEN_HEADERS_DIR "${PROJECT_BINARY_DIR}/autogen/include")
