@@ -27,7 +27,7 @@ namespace amddebugfs
 
 typedef struct gca_info {
     uint32_t version;
-    uint32_t ax_shader_engines;
+    uint32_t max_shader_engines;
     uint32_t max_tile_pipes;
     uint32_t max_cu_per_sh;
     uint32_t max_sh_per_se;

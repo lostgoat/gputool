@@ -355,7 +355,7 @@ std::vector<std::unique_ptr<WaveInfo>> AmdGpuDevice::getWaveInfo()
     failOn(fd < 0, "Error opening %s for AmdGpuDevice, are your root?\n", sWaveInfoPath);
     SCOPE_EXIT { close(fd); };
 
-    for (size_t iSe = 0; iSe < mGcaInfo.ax_shader_engines; ++iSe) {
+    for (size_t iSe = 0; iSe < mGcaInfo.max_shader_engines; ++iSe) {
         for (size_t iSh = 0; iSh < mGcaInfo.max_sh_per_se; ++iSh) {
             for (size_t iCu = 0; iCu < mGcaInfo.max_cu_per_sh; ++iCu) {
                 wave = util::make_unique<WaveInfo>(iSe, iSh, iCu, 0, 0);

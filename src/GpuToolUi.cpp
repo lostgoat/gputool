@@ -42,6 +42,7 @@ class UserInput
         UC_REG_SRBM_READ,
         UC_REG_SRBM_WRITE,
         UC_PRINT_GCA_INFO,
+        UC_PRINT_HQD_INFO,
         UC_PRINT_WAVE_INFO,
         UC_PRINT_WAVE_PRIORITY_INFO,
         UC_BAD_INPUT,
@@ -90,8 +91,6 @@ UserInput::UserInput(std::string command)
     : mOriginalInput(command), mCommand(UC_BAD_INPUT), mRegName(""), mRegValue(0), mParseStream(command + " ")
 {
     std::string strInput;
-    uint32_t intInput;
-
 
     /* Barebones parser */
     strInput = getString();
@@ -123,6 +122,8 @@ UserInput::UserInput(std::string command)
         mCommand = UC_PRINT_WAVE_PRIORITY_INFO;
     } else if (strInput == "wave_info") {
         mCommand = UC_PRINT_WAVE_INFO;
+    } else if (strInput == "hqd_info") {
+        mCommand = UC_PRINT_HQD_INFO;
     } else if (strInput == "exit" || strInput == "quit") {
         mCommand = UC_EXIT;
     } else {
@@ -175,6 +176,9 @@ int GpuToolUi::dispatch(const UserInput &input)
             break;
         case UserInput::UC_PRINT_GCA_INFO:
             doPrintGcaInfo(input);
+            break;
+        case UserInput::UC_PRINT_HQD_INFO:
+            doPrintHqdInfo(input);
             break;
         case UserInput::UC_PRINT_WAVE_INFO:
             doPrintWaveInfo(input);
@@ -255,7 +259,7 @@ int GpuToolUi::doPrintGcaInfo(const UserInput &input)
 {
 #define DUMP_FIELD(name) printf("    %s: 0x%x\n", #name, mGpuDevice->mGcaInfo.name)
     DUMP_FIELD(version);
-    DUMP_FIELD(ax_shader_engines);
+    DUMP_FIELD(max_shader_engines);
     DUMP_FIELD(max_tile_pipes);
     DUMP_FIELD(max_cu_per_sh);
     DUMP_FIELD(max_sh_per_se);
@@ -284,6 +288,36 @@ int GpuToolUi::doPrintGcaInfo(const UserInput &input)
     DUMP_FIELD(family);
     DUMP_FIELD(external_rev_id);
 #undef DUMP_FIELD
+
+    return 0;
+}
+
+int GpuToolUi::doPrintHqdInfo(const UserInput &input)
+{
+    std::vector<std::string> hqdRegs = {
+        "CP_HQD_ACTIVE",
+        "CP_HQD_VMID",
+        "CP_HQD_PIPE_PRIORITY",
+        "CP_HQD_QUEUE_PRIORITY",
+        "CP_HQD_QUANTUM",
+        "CP_HQD_ERROR",
+    };
+
+    /* Maybe get the loop info from gca_info? */
+    for (int iMe = 1; iMe < 2; ++iMe) {
+        for (int iPipe = 0; iPipe < 4; ++iPipe) {
+            for (int iQueue = 0; iQueue < 8; ++iQueue) {
+                uint32_t hqdActive = mGpuDevice->srbmRead("CP_HQD_ACTIVE", iMe, iPipe, iQueue, 0);
+                if (hqdActive) {
+                    printf("HQD ME(%d) PIPE(%d) QUEUE(%d):\n", iMe, iPipe, iQueue);
+                    for (auto const &regName : hqdRegs) {
+                        uint32_t val = mGpuDevice->srbmRead(regName, iMe, iPipe, iQueue, 0);
+                        printFormattedReg(mGpuDevice->getRegSpec(regName), val);
+                    }
+                }
+            }
+        }
+    }
 
     return 0;
 }

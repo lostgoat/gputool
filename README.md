@@ -152,6 +152,164 @@ andres@andres-vr:~/git/gputool/build$ sudo gputool gca_info
     external_rev_id: 0x51
 ```
 
+### HQD Info
+
+The hqd_info command dumps active HQD information
+
+```
+hqd_info
+```
+
+Example:
+```
+andres@andres-vr:~$ sudo gputool hqd_info
+HQD ME(1) PIPE(0) QUEUE(0):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(1):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(2):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(3):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(4):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(5):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(6):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+HQD ME(1) PIPE(0) QUEUE(7):
+    CP_HQD_ACTIVE: 0x1
+      ACTIVE: 0x1
+      BUSY_GATE: 0x0
+    CP_HQD_VMID: 0x0
+      VQID: 0x0
+      IB_VMID: 0x0
+      VMID: 0x0
+    CP_HQD_PIPE_PRIORITY: PIPE_PRIORITY 0x2
+    CP_HQD_QUEUE_PRIORITY: PRIORITY_LEVEL 0xf
+    CP_HQD_QUANTUM: 0x0
+      QUANTUM_SCALE: 0x0
+      QUANTUM_ACTIVE: 0x0
+      QUANTUM_EN: 0x0
+      QUANTUM_DURATION: 0x0
+    CP_HQD_ERROR: 0x0
+      SUA_ERROR: 0x0
+      EDC_ERROR_ID: 0x0
+
+```
+
 ### Wave Info
 
 The wave_info command dumps wave/CU information

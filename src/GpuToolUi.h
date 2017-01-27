@@ -44,6 +44,7 @@ class GpuToolUi
     int dispatch(const UserInput &input);
     int doRegOp(const UserInput &input);
     int doPrintGcaInfo(const UserInput &input);
+    int doPrintHqdInfo(const UserInput &input);
     int doPrintWaveInfo(const UserInput &input);
     int doPrintWavePriorityInfo(const UserInput &input);
     void printFormattedReg(const amdregdb::RegSpec *spec, uint32_t val);
