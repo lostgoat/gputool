@@ -3,6 +3,15 @@ gputool
 
 This is a tool for inspection of GPU HW, mainly intended for driver developers.
 
+IMPORTANT: Development of this project has ceased
+-------------------------------------------------
+
+AMD has open sourced UMR, a tool with a superset of features that gputool exposed:
+https://cgit.freedesktop.org/amd/umr/
+
+If you are interested in using (or contributing) to a gpu debugging tool for AMD HW,
+please direct your attention towards UMR instead.
+
 Supported Hardware
 ------------------
 
